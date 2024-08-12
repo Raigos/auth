@@ -9,7 +9,7 @@
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'node --loader ts-node/esm' src/server.ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint",
-    "pre-commit": "npm run format && npm run lint",
+    "pre-commit": "pnpm run format && pnpm run lint",
     "start": "tsc && node dist/server.js"
   },
   "keywords": [],
