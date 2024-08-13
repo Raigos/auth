@@ -6,7 +6,7 @@ export const createUser = async (req: Request, res: Response) => {
     const user = await userService.createUser(req.body);
     res.status(201).json(user);
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error('Error creating user:', error);
     res.status(500).json({ error: 'Error creating user' });
   }
 };
@@ -46,6 +46,21 @@ export const getUsers = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ error: 'Error fetching users' });
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    const result = await userService.loginUser(email, password);
+    res.json(result);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Invalid credentials') {
+      res.status(400).json({ message: error.message });
+    } else {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
   }
 };
 

@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 import { User, userCollection } from '../models/user.js';
 import { db } from '../config/database.js';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 export const createUser = async (userData: Omit<User, '_id' | 'createdAt' | 'updatedAt'>) => {
   const newUser: User = {
@@ -39,6 +40,24 @@ export const registerUser = async (name: string, email: string, password: string
   });
 
   return { message: 'User registered successfully', userId: newUser._id };
+};
+
+export const loginUser = async (email: string, password: string) => {
+  const user = await db.collection(userCollection).findOne({ email });
+  if (!user) {
+    throw new Error('Invalid credentials');
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error('Invalid credentials');
+  }
+
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string, {
+    expiresIn: '1h',
+  });
+
+  return { token, userId: user._id };
 };
 
 export const getUsers = async () => {
