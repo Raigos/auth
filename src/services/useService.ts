@@ -4,6 +4,23 @@ import { db } from '../config/database.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+export const checkToken = async (token: string) => {
+  if (!token) {
+    throw new Error('Token missing!');
+  }
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET as string);
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      throw new Error('Token not valid!');
+    } else if (error instanceof jwt.TokenExpiredError) {
+      throw new Error('Token has expired!');
+    } else {
+      throw new Error('An error occurred while verifying the token');
+    }
+  }
+};
+
 export const createUser = async (userData: Omit<User, '_id' | 'createdAt' | 'updatedAt'>) => {
   const newUser: User = {
     ...userData,

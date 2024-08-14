@@ -1,6 +1,30 @@
 import { Request, Response } from 'express';
 import * as userService from '../services/useService.js';
 
+export const checkToken = async (req: Request, res: Response) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      return res.status(401).json({ message: 'Authorization header missing' });
+    }
+
+    const token = authHeader.split(' ')[1]; // Extract token from "Bearer <token>"
+    if (!token) {
+      return res.status(401).json({ message: 'Token missing' });
+    }
+
+    const result = await userService.checkToken(token);
+    res.json({ message: 'Token is valid', user: result });
+  } catch (error) {
+    console.error('Error in checkToken:', error);
+    if (error instanceof Error) {
+      res.status(401).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'An unexpected error occurred' });
+    }
+  }
+};
+
 export const createUser = async (req: Request, res: Response) => {
   try {
     const user = await userService.createUser(req.body);
